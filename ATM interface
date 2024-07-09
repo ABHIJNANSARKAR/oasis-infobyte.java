@@ -1,0 +1,157 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+class Account {
+    private String userId;
+    private String pin;
+    private double balance;
+    private Map<String, Double> transactionHistory;
+
+    public Account(String userId, String pin, double balance) {
+        this.userId = userId;
+        this.pin = pin;
+        this.balance = balance;
+        this.transactionHistory = new HashMap<>();
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public void addTransaction(String transactionType, double amount) {
+        transactionHistory.put(transactionType, amount);
+    }
+
+    public void displayTransactionHistory() {
+        for (Map.Entry<String, Double> entry : transactionHistory.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+}
+
+public class ATM {
+    private Map<String, Account> accounts;
+    private Scanner scanner;
+
+    public ATM() {
+        this.accounts = new HashMap<>();
+        this.scanner = new Scanner(System.in);
+
+        // Initialize accounts
+        accounts.put("user1", new Account("user1", "1234", 1000.0));
+        accounts.put("user2", new Account("user2", "5678", 500.0));
+    }
+
+    public void start() {
+        System.out.println("Welcome to ATM System!");
+        System.out.print("Enter user ID: ");
+        String userId = scanner.next();
+        System.out.print("Enter PIN: ");
+        String pin = scanner.next();
+
+        Account account = accounts.get(userId);
+        if (account!= null && account.getPin().equals(pin)) {
+            System.out.println("Login successful!");
+            displayMenu(account);
+        } else {
+            System.out.println("Invalid user ID or PIN. Please try again.");
+            start();
+        }
+    }
+
+    private void displayMenu(Account account) {
+        while (true) {
+            System.out.println("1. Transaction History");
+            System.out.println("2. Withdraw");
+            System.out.println("3. Deposit");
+            System.out.println("4. Transfer");
+            System.out.println("5. Quit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    displayTransactionHistory(account);
+                    break;
+                case 2:
+                    withdraw(account);
+                    break;
+                case 3:
+                    deposit(account);
+                    break;
+                case 4:
+                    transfer(account);
+                    break;
+                case 5:
+                    System.out.println("Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void displayTransactionHistory(Account account) {
+        System.out.println("Transaction History:");
+        account.displayTransactionHistory();
+    }
+
+    private void withdraw(Account account) {
+        System.out.print("Enter amount to withdraw: ");
+        double amount = scanner.nextDouble();
+        if (amount > account.getBalance()) {
+            System.out.println("Insufficient balance.");
+        } else {
+            account.setBalance(account.getBalance() - amount);
+            account.addTransaction("Withdrawal", amount);
+            System.out.println("Withdrawal successful. New balance: " + account.getBalance());
+        }
+    }
+
+    private void deposit(Account account) {
+        System.out.print("Enter amount to deposit: ");
+        double amount = scanner.nextDouble();
+        account.setBalance(account.getBalance() + amount);
+        account.addTransaction("Deposit", amount);
+        System.out.println("Deposit successful. New balance: " + account.getBalance());
+    }
+
+    private void transfer(Account account) {
+        System.out.print("Enter recipient's user ID: ");
+        String recipientUserId = scanner.next();
+        Account recipientAccount = accounts.get(recipientUserId);
+        if (recipientAccount == null) {
+            System.out.println("Recipient's user ID not found.");
+        } else {
+            System.out.print("Enter amount to transfer: ");
+            double amount = scanner.nextDouble();
+            if (amount > account.getBalance()) {
+                System.out.println("Insufficient balance.");
+            } else {
+                account.setBalance(account.getBalance() - amount);
+                recipientAccount.setBalance(recipientAccount.getBalance() + amount);
+                account.addTransaction("Transfer to " + recipientUserId, amount);
+                recipientAccount.addTransaction("Transfer from " + account.getUserId(), amount);
+                System.out.println("Transfer successful. New balance: " + account.getBalance());
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        ATM atm = new ATM();
+        atm.start();
+    }
+}
