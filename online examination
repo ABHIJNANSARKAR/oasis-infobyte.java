@@ -1,0 +1,129 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+class User {
+    private String username;
+    private String password;
+    private String profile;
+
+    public User(String username, String password, String profile) {
+        this.username = username;
+        this.password = password;
+        this.profile = profile;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
+}
+
+public class OnlineExamSystem {
+    private Map<String, User> users;
+    private Scanner scanner;
+
+    public OnlineExamSystem() {
+        this.users = new HashMap<>();
+        this.scanner = new Scanner(System.in);
+
+        // Initialize users
+        users.put("user1", new User("user1", "password1", "Profile 1"));
+        users.put("user2", new User("user2", "password2", "Profile 2"));
+    }
+
+    public void start() {
+        System.out.println("Welcome to Online Exam System!");
+        System.out.print("Enter username: ");
+        String username = scanner.next();
+        System.out.print("Enter password: ");
+        String password = scanner.next();
+
+        User user = users.get(username);
+        if (user != null && user.getPassword().equals(password)) {
+            System.out.println("Login successful!");
+            displayMenu(user);
+        } else {
+            System.out.println("Invalid username or password. Please try again.");
+            start();
+        }
+    }
+
+    private void displayMenu(User user) {
+        while (true) {
+            System.out.println("1. Update Profile and Password");
+            System.out.println("2. Selecting answers for MCQs");
+            System.out.println("3. Logout");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    updateProfileAndPassword(user);
+                    break;
+                case 2:
+                    selectAnswersForMCQs(user);
+                    break;
+                case 3:
+                    System.out.println("Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void updateProfileAndPassword(User user) {
+        System.out.print("Enter new password: ");
+        String newPassword = scanner.next();
+        System.out.print("Enter new profile: ");
+        String newProfile = scanner.next();
+
+        user.setPassword(newPassword);
+        user.setProfile(newProfile);
+
+        System.out.println("Profile and password updated successfully!");
+    }
+
+    private void selectAnswersForMCQs(User user) {
+        System.out.println("Selecting answers for MCQs...");
+        // Implement MCQs logic here
+        // For simplicity, let's assume we have 5 questions
+        for (int i = 1; i <= 5; i++) {
+            System.out.print("Enter answer for question " + i + ": ");
+            String answer = scanner.next();
+            // Store the answer in a database or a file
+            System.out.println("Answer submitted successfully!");
+        }
+
+        // Implement timer and auto submit logic here
+        // For simplicity, let's assume the timer is 30 seconds
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Time's up! Your answers have been submitted automatically.");
+    }
+
+    public static void main(String[] args) {
+        OnlineExamSystem onlineExamSystem = new OnlineExamSystem();
+        onlineExamSystem.start();
+    }
+}
